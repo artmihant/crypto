@@ -11,7 +11,7 @@
 
 Доступные команды:
 
-    genkey \t сгенерирует тройку: <open_exp> <secret_exp> <module>
+    genkey      Сгенерировать тройку: <open_exp> <secret_exp> <module>
 
     encrypt <public_exp> <module> <message>     Зашифровать сообщенние
 
