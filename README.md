@@ -7,7 +7,7 @@
 
 Запуск:
 
-    python -m rsa <command> <*args> 
+    python -m rsa <command> [arguments] 
 
 Доступные команды:
 
@@ -88,7 +88,7 @@
 
 Запуск:
 
-    python -m caesar <command> <*args> 
+    python -m caesar <command> [arguments] 
 
 Доступные команды:
 
@@ -129,7 +129,7 @@
 
 Запуск:
 
-    python -m vernam <command> <*args> 
+    python -m vernam <command> [arguments] 
 
 Доступные команды:
 
