@@ -3,21 +3,32 @@ from random import randint
 import math
 import sys
 
-BLOCK_SIZE = 11 # Размер единичного блока шифрования в байтах
+from prime_gen import generate_prime_number
 
-def generate_prime_number():
-    """ Генерирует случайное простое число от MIN_NUMBER до 2*MIN_NUMBER+1 """
-    MIN_NUMBER = 2**(4*BLOCK_SIZE)
 
-    candidate = 2*randint(MIN_NUMBER//2, MIN_NUMBER)+1
+# Размер единичного блока шифрования в байтах. Чем этот параметр больше, тем длиннее ключи и тем надежней шифр
+# Увеличение этого параметра на 1 прибавляет примерно 2.4 десятичные цифры (или 8 бит) к длине ключа
 
-    divider_limit = int(math.sqrt(2*MIN_NUMBER+1)) + 1
+## Прогрессия сложности взлома
 
-    for divider in range(3, divider_limit, 2):
-        if candidate % divider == 0:
-            return generate_prime_number()
-   
-    return candidate
+# При BLOCK_SIZE = 4 возможен взлом ключа на листочке ручкой
+
+# При BLOCK_SIZE = 8 возможен взлом ключа простыми алгоритмами за минуты
+
+# При BLOCK_SIZE = 16 возможен взлом ключа простыми алгоритмами за дни или сложными алгоритмами за минуты
+
+# При BLOCK_SIZE = 32 возможен взлом ключа очень сложными алгоритмами за часы вычислений
+
+# При BLOCK_SIZE = 64 возможен взлом ключа очень сложными алгоритмами за годы вычислений
+
+# При BLOCK_SIZE = 96 получится число примерно 240 знаков 
+#   что соответствует RSA-240 - наибольшему на текущий момент взломанному числу
+
+# При BLOCK_SIZE = 128 алгоритм можно считать аналогичным RSA-1024, 
+#   т.е. невзламываемым в смысле вычислительных возможностей образца 2023 года.
+
+
+BLOCK_SIZE = 96
 
 
 def gcd(a, b):
@@ -49,8 +60,8 @@ def generate_coprime_number(a):
 
 def generate_cripto_key():
     """ Генерирует открытую экспоненту, секретную экспоненту и модуль """
-    A = generate_prime_number()
-    B = generate_prime_number()
+    A = generate_prime_number(BLOCK_SIZE//2)
+    B = generate_prime_number(BLOCK_SIZE//2)
 
     if A == B:
         return generate_cripto_key()
@@ -160,15 +171,22 @@ def encrypt(message, public_exp, module):
 def decrypt(encrypt_message, secret_exp, module):
     """ Расшифрование сообщения с помощью секретного ключа """
 
-    encrypt_message = encrypt_message.strip().encode('utf-8') # Указываем зашифрованной строке base64 что она байт-строка
+    try:
 
-    encrypt_blocks = decode_from_base64(encrypt_message) # Переводим сообщение из base64 в цепочку блоков
+        encrypt_message = encrypt_message.strip().encode('utf-8') # Указываем зашифрованной строке base64 что она байт-строка
     
-    blocks = crypt(encrypt_blocks, secret_exp, module) # Расшифровываем цепочку блоков секретным ключом
+        encrypt_blocks = decode_from_base64(encrypt_message) # Переводим сообщение из base64 в цепочку блоков
 
-    bmessage = decode_to_bytes(blocks) # Декодируем сообщение из цепочки в байт-строку
+        blocks = crypt(encrypt_blocks, secret_exp, module) # Расшифровываем цепочку блоков секретным ключом
 
-    return bmessage.decode() # Превращаем байт-строку в обычную строку и возвращаем
+        bmessage = decode_to_bytes(blocks) # Декодируем сообщение из цепочки в байт-строку
+
+        return bmessage.decode() # Превращаем байт-строку в обычную строку и возвращаем
+
+    except:
+
+        sys.exit('Не могу расшифровать: сообщение повреждено или неправильный ключ!')
+
 
 
 def main():
@@ -232,6 +250,5 @@ if __name__ == '__main__':
 
     # public_exp, module = 37232839779152700803, 44502594942665793551
     # secret_exp, module = 17906173911654058667, 44502594942665793551
-
 
     main()
